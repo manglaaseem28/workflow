@@ -1,99 +1,63 @@
-Workflow – A Lightweight Jira Clone (Rails API + React)
+# Workflow -- Lightweight Jira Clone (Rails API + React)
 
-Workflow is a multi-tenant project management application inspired by Jira and Linear.
-It provides companies, users, workflows (boards), and tasks with status movement across columns.
-The project is built as a full-stack application with a Rails API backend and a React (Vite + TypeScript) frontend.
+Workflow is a multi-tenant project management application inspired by
+Jira and Linear. It provides companies, users, workflows (boards), and
+tasks with clearly defined statuses. The project is built as a
+full-stack application with a Ruby on Rails API backend and a React
+(Vite + TypeScript) frontend.
 
-Features
-Multi-Tenant Architecture
+## Features
 
-Companies are created during sign-up (admin user creates company).
+### Multi-Tenant Architecture
 
-Each company has its own users, workflows, and tasks.
+-   Company is created automatically on admin sign-up.
+-   Users belong to companies.
+-   Workflows and tasks are isolated per company.
 
-All data is isolated per company.
+### Authentication
 
-Authentication
+-   JWT-based authentication.
+-   Sign Up creates company + admin user.
+-   Sign In returns a JWT token.
+-   `/me` endpoint hydrates session on page refresh.
 
-JWT-based authentication.
+### Workflows and Tasks
 
-Sign Up creates a company and an admin user.
+-   Create workflows from the frontend UI.
+-   Each workflow contains tasks grouped into four statuses:
+    -   `initial`
+    -   `planning`
+    -   `review`
+    -   `closed`
+-   Create and edit tasks.
+-   Status can be changed (drag-and-drop planned).
 
-Sign In returns a token.
+### Frontend UI
 
-/me endpoint restores session on page refresh.
+-   React + Vite + TypeScript
+-   Material UI with a custom pastel theme
+-   Responsive Kanban-style board layout
+-   Dialog-based workflow and task creation
 
-Workflows and Tasks
+# Backend Setup (Rails API)
 
-Create workflows from the UI.
+## Requirements
 
-Each workflow contains tasks in four predefined statuses:
+-   Ruby 2.7+
+-   Rails 7+
+-   PostgreSQL
+-   Bundler
 
-initial
+## 1. Install dependencies
 
-planning
+    cd workflow_api
+    bundle install
 
-review
+## 2. Configure PostgreSQL
 
-closed
+Edit `config/database.yml`:
 
-Create and edit tasks.
-
-Change status (drag-and-drop support can be added).
-
-Frontend Styling
-
-React application styled with Material UI.
-
-Custom pastel theme.
-
-Responsive layout with a board-style interface.
-
-Technology Stack
-Backend
-
-Ruby on Rails 7 (API mode)
-
-PostgreSQL
-
-JWT Authentication
-
-Frontend
-
-React 18 (Vite)
-
-TypeScript
-
-Material UI
-
-Axios
-
-Setup Instructions
-
-This section explains how to set up both the Rails API and the React frontend.
-
-1. Backend (Rails API)
-Prerequisites
-
-Ruby 2.7+
-
-Rails 7+
-
-PostgreSQL
-
-Bundler
-
-Step 1: Install dependencies
-
-Navigate to the backend folder:
-
-cd workflow_api
-bundle install
-
-Step 2: Configure database
-
-Edit config/database.yml:
-
+``` yaml
 default: &default
   adapter: postgresql
   encoding: unicode
@@ -113,127 +77,80 @@ test:
 production:
   <<: *default
   database: workflow_production
+```
 
+Create and migrate:
 
-Create and migrate the database:
+    rails db:create
+    rails db:migrate
 
-rails db:create
-rails db:migrate
+## 3. Environment variables
 
-Step 3: Environment variables
+Create `.env` inside `workflow_api`:
 
-Create a file:
+    SECRET_KEY_BASE=your-secret-key
 
-workflow_api/.env
+(optional) Add to `Gemfile`:
 
+    gem "dotenv-rails", groups: [:development, :test]
 
-Add values:
+## 4. Start Rails server
 
-SECRET_KEY_BASE=your_rails_secret_key
+    rails s
 
+# Frontend Setup (React + Vite)
 
-Ensure Rails loads .env (via dotenv-rails if installed).
+## Requirements
 
-Step 4: Run the Rails server
-rails s
+-   Node.js 18+
+-   npm or yarn
 
+## 1. Install dependencies
 
-Default server runs on:
+    cd workflow_web
+    npm install
 
-http://localhost:3000
+## 2. Create .env file
 
-2. Frontend (React + Vite)
-Prerequisites
+    VITE_API_BASE_URL=http://localhost:3000/api/v1
 
-Node.js 18+
+## 3. Start frontend
 
-npm or yarn
+    npm run dev
 
-Step 1: Install dependencies
-cd workflow_web
-npm install
+# API Endpoints Overview
 
-Step 2: Environment configuration
+## Authentication
 
-Create frontend .env file:
+    POST /api/v1/auth/sign_up
+    POST /api/v1/auth/sign_in
+    GET  /api/v1/me
 
-workflow_web/.env
+## Workflows
 
+    GET    /api/v1/workflows
+    POST   /api/v1/workflows
+    GET    /api/v1/workflows/:id
+    PATCH  /api/v1/workflows/:id
+    DELETE /api/v1/workflows/:id
 
-Add:
+## Tasks
 
-VITE_API_BASE_URL=http://localhost:3000/api/v1
+    GET    /api/v1/workflows/:workflow_id/tasks
+    POST   /api/v1/workflows/:workflow_id/tasks
+    PATCH  /api/v1/workflows/:workflow_id/tasks/:id
+    DELETE /api/v1/workflows/:workflow_id/tasks/:id
 
-Step 3: Start development server
-npm run dev
+# Project Structure
 
+    workflow/
+     ├── workflow_api/
+     └── workflow_web/
 
-Frontend will run on:
+# Future Enhancements
 
-http://localhost:5173
-
-API Overview
-Authentication
-POST /api/v1/auth/sign_up     # Create company + admin user
-POST /api/v1/auth/sign_in     # Login
-GET  /api/v1/me               # Restore session
-
-Workflows
-GET    /api/v1/workflows
-POST   /api/v1/workflows
-GET    /api/v1/workflows/:id
-PATCH  /api/v1/workflows/:id
-DELETE /api/v1/workflows/:id
-
-Tasks
-GET    /api/v1/workflows/:workflow_id/tasks
-POST   /api/v1/workflows/:workflow_id/tasks
-PATCH  /api/v1/workflows/:workflow_id/tasks/:id
-DELETE /api/v1/workflows/:workflow_id/tasks/:id
-
-Project Structure
-workflow/
- ├── workflow_api/        # Rails API backend
- |    ├── app/
- |    ├── config/
- |    ├── db/
- |    └── ...
- └── workflow_web/        # React frontend (Vite + TS)
-      ├── src/
-      ├── public/
-      └── ...
-
-Common Development Commands
-Rails
-rails db:create
-rails db:migrate
-rails db:seed
-rails s
-
-React
-npm install
-npm run dev
-
-How It Works (High-Level)
-
-A company is created during admin signup.
-
-The admin receives a JWT token and stays authenticated.
-
-The frontend stores the token in localStorage.
-
-On page refresh, the frontend calls /me to restore user session.
-
-Users create workflows (boards).
-
-Each workflow contains tasks grouped by status.
-
-Tasks can be created, updated, and moved between statuses.
-
-Future Enhancements
-
-Drag-and-drop (react-beautiful-dnd or @hello-pangea/dnd)
-
-Comments on tasks
-
-File attachments
+-   Drag and drop task movement
+-   Comments
+-   Invitations
+-   Workflow templates
+-   Activity logs
