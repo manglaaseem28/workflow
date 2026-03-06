@@ -14,6 +14,24 @@ full-stack application with a Ruby on Rails API backend and a React
 -   Users belong to companies.
 -   Workflows and tasks are isolated per company.
 
+## 🔎 What to look at (quick)
+
+- **Multi-tenant model & scoping**
+  - `app/models/current.rb` — request-scoped tenant context (pattern used)
+  - `app/models/company.rb` and `app/models/account.rb` — tenancy/multi-tenant schema
+
+- **Auth & API**
+  - `app/controllers/api/v1/auth_controller.rb` — JWT sign_in / sign_up / me
+  - `config/initializers/jwt.rb` — JWT helper (if present) or see `app/lib/json_web_token.rb`
+
+- **Background jobs / ETL**
+  - `app/jobs/import_transactions_job.rb` — idempotent CSV/API ingestion example
+  - `app/services/transaction_service.rb` — upsert/normalization logic (example)
+
+- **DevOps / CI**
+  - `.github/workflows/ci.yml` — basic CI running tests
+  - `Dockerfile` & `docker-compose.yml` — local dev + Postgres example
+
 ### Authentication
 
 -   JWT-based authentication.
